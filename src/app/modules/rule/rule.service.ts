@@ -3,34 +3,6 @@ import ApiError from '../../../errors/ApiError'
 import { IRule } from './rule.interface'
 import { Rule } from './rule.model'
 
-//privacy policy
-const createPrivacyPolicyToDB = async (payload: IRule) => {
-  const isExistPrivacy = await Rule.findOne({ type: 'privacy' })
-  if (isExistPrivacy) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Privacy policy already exist!')
-  } else {
-    const result = await Rule.create({ ...payload, type: 'privacy' })
-    return result
-  }
-}
-
-const getPrivacyPolicyFromDB = async () => {
-  const result = await Rule.findOne({ type: 'privacy' })
-  if (!result) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Privacy policy doesn't exist!")
-  }
-  return result
-}
-const updatePrivacyPolicyToDB = async (payload: IRule) => {
-  const isExistPrivacy = await Rule.findOne({ type: 'privacy' })
-  if (!isExistPrivacy) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Privacy policy doesn't exist!")
-  }
-  const result = await Rule.findOneAndUpdate({ type: 'privacy' }, payload, {
-    new: true,
-  })
-  return result
-}
 
 //terms and conditions
 const createTermsAndConditionToDB = async (payload: IRule) => {
@@ -71,44 +43,41 @@ const updateTermsAndConditionToDB = async (payload: IRule) => {
   return result
 }
 
-//privacy policy
-const createAboutToDB = async (payload: IRule) => {
-  const isExistAbout = await Rule.findOne({ type: 'about' })
-  if (isExistAbout) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'About already exist!')
+//disclaimer
+const createDisclaimerToDB = async (payload: IRule) => {
+  const isExistDisclaimer = await Rule.findOne({ type: 'disclaimer' })
+  if (isExistDisclaimer) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Disclaimer already exist!')
   } else {
-    const result = await Rule.create({ ...payload, type: 'about' })
+    const result = await Rule.create({ ...payload, type: 'disclaimer' })
     return result
   }
 }
 
-const getAboutFromDB = async () => {
-  const result = await Rule.findOne({ type: 'about' })
+const getDisclaimerFromDB = async () => {
+  const result = await Rule.findOne({ type: 'disclaimer' })
   if (!result) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "About doesn't exist!")
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Disclaimer doesn't exist!")
   }
   return result
 }
 
-const updateAboutToDB = async (payload: IRule) => {
-  const isExistPrivacy = await Rule.findOne({ type: 'about' })
-  if (!isExistPrivacy) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "About doesn't exist!")
+const updateDisclaimerToDB = async (payload: IRule) => {
+  const isExistDisclaimer = await Rule.findOne({ type: 'disclaimer' })
+  if (!isExistDisclaimer) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Disclaimer doesn't exist!")
   }
-  const result = await Rule.findOneAndUpdate({ type: 'about' }, payload, {
+  const result = await Rule.findOneAndUpdate({ type: 'disclaimer' }, payload, {
     new: true,
   })
   return result
 }
 
 export const RuleService = {
-  createPrivacyPolicyToDB,
-  updatePrivacyPolicyToDB,
-  getPrivacyPolicyFromDB,
+  createDisclaimerToDB,
+  getDisclaimerFromDB,
+  updateDisclaimerToDB,
   createTermsAndConditionToDB,
   getTermsAndConditionFromDB,
-  updateTermsAndConditionToDB,
-  createAboutToDB,
-  updateAboutToDB,
-  getAboutFromDB,
+  updateTermsAndConditionToDB
 }

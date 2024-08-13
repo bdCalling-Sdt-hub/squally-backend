@@ -1,55 +1,39 @@
 import express from 'express'
-import { USER_TYPE } from '../../../enums/user'
+import { USER_ROLES } from '../../../enums/user'
 import auth from '../../middlewares/auth'
 import { RuleController } from './rule.controller'
 const router = express.Router()
-
-//privacy policy
-router
-  .route('/privacy-policy')
-  .post(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN),
-    RuleController.createPrivacyPolicy,
-  )
-  .patch(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN),
-    RuleController.updatePrivacyPolicy,
-  )
-  .get(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN, USER_TYPE.PATIENT),
-    RuleController.getPrivacyPolicy,
-  )
 
 //terms and conditions
 router
   .route('/terms-and-conditions')
   .post(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN),
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
     RuleController.createTermsAndCondition,
   )
   .patch(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN),
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
     RuleController.updateTermsAndCondition,
   )
   .get(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN, USER_TYPE.PATIENT),
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.USER,  USER_ROLES.ARTIST),
     RuleController.getTermsAndCondition,
   )
 
-//privacy policy
+//disclaimer
 router
-  .route('/about')
+  .route('/disclaimer')
   .post(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN),
-    RuleController.createAbout,
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+    RuleController.createDisclaimer,
   )
   .patch(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN),
-    RuleController.updateAbout,
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+    RuleController.updateDisclaimer,
   )
   .get(
-    auth(USER_TYPE.SUPER_ADMIN, USER_TYPE.ADMIN, USER_TYPE.PATIENT),
-    RuleController.getAbout,
+    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.USER,  USER_ROLES.ARTIST),
+    RuleController.getDisclaimer,
   )
 
 export const RuleRoutes = router

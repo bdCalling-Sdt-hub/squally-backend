@@ -1,16 +1,5 @@
 import { z } from 'zod'
 
-const createPrivacyPolicyZodSchema = z.object({
-  body: z.object({
-    content: z.string({ required_error: 'Privacy policy is required' }),
-  }),
-})
-const updatePrivacyPolicyZodSchema = z.object({
-  body: z.object({
-    content: z.string().optional(),
-  }),
-})
-
 const createTermsAndConditionZodSchema = z.object({
   body: z.object({
     content: z.string({ required_error: 'Terms and conditions is required' }),
@@ -22,23 +11,21 @@ const updateTermsAndConditionZodSchema = z.object({
   }),
 })
 
-const createAboutZodSchema = z.object({
+const createDisclaimerZodSchema = z.object({
   body: z.object({
-    content: z.string({ required_error: 'About is required' }),
+    content: z.string({ required_error: 'Disclaimer is required' }),
   }),
 })
 
-const updaterAboutZodSchema = z.object({
+const updaterDisclaimerZodSchema = z.object({
   body: z.object({
     content: z.string().optional(),
   }),
 })
 
 export const RuleValidation = {
-  createPrivacyPolicyZodSchema,
-  updatePrivacyPolicyZodSchema,
-  createAboutZodSchema,
-  updaterAboutZodSchema,
+  updaterDisclaimerZodSchema,
+  createDisclaimerZodSchema,
   createTermsAndConditionZodSchema,
   updateTermsAndConditionZodSchema,
 }
