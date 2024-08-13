@@ -1,14 +1,24 @@
 import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import catchAsync from '../../../shared/catchAsync'
-import pick from '../../../shared/pick'
 import sendResponse from '../../../shared/sendResponse'
 import { CategoryService } from './category.service'
-import { paginationFields } from '../../../shared/constant'
 
 const createCategory = catchAsync(async (req: Request, res: Response) => {
-  const { ...categoryData } = req.body
-  const result = await CategoryService.createCategoryToDB(categoryData)
+  const categoryData = req.body;
+
+  let image = "";
+  if (req.files && "image" in req.files && req.files.image[0]) {
+    image = `/images/${req.files.image[0].filename}`;
+  }
+  const data = {
+    ...categoryData,
+    image,
+  };
+
+  console.log("console data", data)
+
+  const result = await CategoryService.createCategoryToDB(data)
 
   sendResponse(res, {
     success: true,
@@ -19,30 +29,30 @@ const createCategory = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getCategories = catchAsync(async (req: Request, res: Response) => {
-  const paginationOptions = pick(req.query, paginationFields)
-  const filterOptions = pick(req.query, ['search'])
-
-  const result = await CategoryService.getCategoriesFromDB(
-    paginationOptions,
-    filterOptions,
-  )
+  const result = await CategoryService.getCategoriesFromDB();
 
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,
     message: 'Category create successfully',
-    pagination: result.meta,
-    data: result.data,
+    data: result,
   })
 })
 
 const updateCategory = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id
-  const { ...updateCategoryData } = req.body
-  const result = await CategoryService.updateCategoryToDB(
-    id,
-    updateCategoryData,
-  )
+  const updateCategoryData = req.body;
+
+  let image;
+  if (req.files && "image" in req.files && req.files.image[0]) {
+    image = `/images/${req.files.image[0].filename}`;
+  }
+  const data = {
+    ...updateCategoryData,
+    image
+  };
+
+  const result = await CategoryService.updateCategoryToDB(id, data)
 
   sendResponse(res, {
     success: true,

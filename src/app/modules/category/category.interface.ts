@@ -1,11 +1,12 @@
-import { Model } from 'mongoose'
+import { Model } from 'mongoose';
 
 export type ICategory = {
-  categoryName: string
+  categoryName: string;
+  image: string;
 }
 
 export type CategoryModel = Model<ICategory, Record<string, unknown>>
 
-export type CategoryFilterOption = {
+/* export type CategoryFilterOption = {
   search?: string
-}
+} */
