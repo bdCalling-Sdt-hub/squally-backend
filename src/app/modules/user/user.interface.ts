@@ -7,6 +7,7 @@ export type IUser = {
   contact: string;
   email: string;
   password: string;
+  about: string;
   location: string;
   profile?: string;
   status: 'active' | 'delete';
@@ -15,6 +16,12 @@ export type IUser = {
     isResetPassword: boolean;
     oneTimeCode: number;
     expireAt: Date;
+  }
+  accountInformation?: {
+    status: boolean;
+    stripeAccountId: string;
+    externalAccountId: string;
+    currency: string;
   };
 };
 
