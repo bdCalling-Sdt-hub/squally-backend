@@ -2,12 +2,18 @@ import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiError";
 import { ILesson } from "./lesson.interface"
 import { Lesson } from "./lesson.model";
+import { User } from "../user/user.model";
 
 const createLesson = async (payload: ILesson): Promise<ILesson> => {
-    const result = Lesson.create(payload);
+    const result:any = Lesson.create(payload);
     if(!result){
         throw new ApiError(StatusCodes.UNAUTHORIZED, "Failed to create Lesson");
     }
+
+    if(result?._id){
+        await User.findByIdAndUpdate({_id: payload?.user}, {$set: {lessons: result?._id}});  
+    }
+
     return result;
 }
 

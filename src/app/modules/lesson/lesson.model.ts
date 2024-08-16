@@ -51,13 +51,10 @@ const lessonSchema = new Schema<ILesson, LessonModal>(
     },
     gallery: [
       {
-        image: {
-          type: String,
-          require: true
-        }
+        type: String,
+        require: true
       }
     ]
-    
   },
   { timestamps: true }
 );

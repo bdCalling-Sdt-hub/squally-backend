@@ -7,10 +7,13 @@ import { ReviewService } from './review.service';
 const createReview = catchAsync(async(req: Request, res: Response)=>{
     const user = req.user;
     const reviewData = req.body;
+    const id = req.params.id;
     const payload = {
         ...reviewData,
-        user: user?._id
+        artist: id,
+        user: user?.id
     }
+
     const result = await ReviewService.createReview(payload);
 
     sendResponse(res, {

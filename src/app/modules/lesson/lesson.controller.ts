@@ -6,6 +6,7 @@ import { LessonService } from './lesson.service';
 
 const createLesson = catchAsync(async (req: Request, res: Response) => {
     const lessonData = req.body;
+    const user = req.user.id;
 
     let gallery = [];
     if (req.files && "image" in req.files && req.files.image.length) {
@@ -16,9 +17,10 @@ const createLesson = catchAsync(async (req: Request, res: Response) => {
 
     const payload = {
         ...lessonData,
-        gallery
+        gallery,
+        user
     }
-
+    
     const result = await LessonService.createLesson(payload);
     sendResponse(res, {
         statusCode: StatusCodes.OK,

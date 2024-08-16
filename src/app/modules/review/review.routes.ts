@@ -6,7 +6,7 @@ import auth from "../../middlewares/auth";
 import { ReviewValidation } from "./review.validation";
 const router = express.Router();
 
-router.post("/create", auth(USER_ROLES.USER), validateRequest(ReviewValidation.createReviewZodSchema), ReviewController.createReview);
-router.post("/:id", auth(USER_ROLES.USER, USER_ROLES.ARTIST), ReviewController.createReview);
+router.post("/:id", auth(USER_ROLES.USER), validateRequest(ReviewValidation.createReviewZodSchema), ReviewController.createReview);
+router.get("/:id", auth(USER_ROLES.USER, USER_ROLES.ARTIST), ReviewController.getReview);
 
 export const ReviewRoutes = router;

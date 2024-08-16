@@ -50,6 +50,11 @@ const userSchema = new Schema<IUser, UserModal>(
       type: Boolean,
       default: false,
     },
+    lesson: {
+      type: Schema.Types.ObjectId,
+      ref: "Lesson",
+      required: false
+    },
     authentication: {
       type: {
         isResetPassword: {

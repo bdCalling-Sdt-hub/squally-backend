@@ -5,6 +5,7 @@ const reviewSchema = new Schema<IReview, ReviewModel>(
     {
         user: {
             type: Schema.Types.ObjectId,
+            ref: "User",
             required: true
         },
         artist: {

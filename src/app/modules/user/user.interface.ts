@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Schema } from 'mongoose';
 import { USER_ROLES } from '../../../enums/user';
 
 export type IUser = {
@@ -12,6 +12,7 @@ export type IUser = {
   profile?: string;
   status: 'active' | 'delete';
   verified: boolean;
+  lesson?: Schema.Types.ObjectId;
   authentication?: {
     isResetPassword: boolean;
     oneTimeCode: number;
