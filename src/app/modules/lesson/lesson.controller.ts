@@ -5,7 +5,20 @@ import sendResponse from '../../../shared/sendResponse'
 import { LessonService } from './lesson.service';
 
 const createLesson = catchAsync(async (req: Request, res: Response) => {
-    const payload = req.body;
+    const lessonData = req.body;
+
+    let gallery = [];
+    if (req.files && "image" in req.files && req.files.image.length) {
+        for (let image of req.files.image) {
+            gallery.push(`/images/${image.filename}`);
+        }
+    }
+
+    const payload = {
+        ...lessonData,
+        gallery
+    }
+
     const result = await LessonService.createLesson(payload);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -17,8 +30,21 @@ const createLesson = catchAsync(async (req: Request, res: Response) => {
 
 const updateLesson = catchAsync(async (req: Request, res: Response) => {
     const user = req.user;
-    const payload = req.body;
+    const updateData = req.body;
     const id = req.params.id;
+
+    let gallery = [];
+    if (req.files && "image" in req.files && req.files.image.length) {
+        for (let image of req.files.image) {
+            gallery.push(`/images/${image.filename}`);
+        }
+    }
+
+    const payload = {
+        ...updateData,
+        gallery
+    }
+
     const result = await LessonService.updateLesson(id, payload, user);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
