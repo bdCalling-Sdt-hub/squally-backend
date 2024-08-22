@@ -24,7 +24,11 @@ const lessonSchema = new Schema<ILesson, LessonModal>(
       type: String,
       required: true
     },
-    lesson: {
+    lessonTitle: {
+      type: String,
+      required: true
+    },
+    lessonDescription: {
       type: String,
       required: true
     },
@@ -32,12 +36,12 @@ const lessonSchema = new Schema<ILesson, LessonModal>(
       type: String,
       required: true
     },
-    lessonOnline: {
+    lessonOutline: {
       type: String,
       required: true
     },
     price: {
-      type: String,
+      type: Number,
       required: true
     },
     notes: {

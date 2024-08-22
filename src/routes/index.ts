@@ -6,6 +6,7 @@ import { CategoryRoutes } from '../app/modules/category/category.route';
 import { LessonRoutes } from '../app/modules/lesson/lesson.routes';
 import { ReviewRoutes } from '../app/modules/review/review.routes';
 import { BookmarkRoutes } from '../app/modules/bookmark/bookmark.routes';
+import { ArtistRoutes } from '../app/modules/artist/artist.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -36,6 +37,10 @@ const apiRoutes = [
   {
     path: '/bookmark',
     route: BookmarkRoutes,
+  },
+  {
+    path: '/artist',
+    route: ArtistRoutes,
   },
 ];
 

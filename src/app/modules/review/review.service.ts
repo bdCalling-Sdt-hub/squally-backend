@@ -32,14 +32,24 @@ const createReview = async (payload: IReview): Promise<IReview> => {
 
     // Update artist's rating and total ratings count
     const totalRating = isExistArtist.totalRating + 1;
-    const ratings = ((isExistArtist.rating * (isExistArtist.totalRating - 1)) + rating) / isExistArtist.totalRating;
 
-    const updatedData = {
-        totalRating: Number(totalRating),
-        rating: Number(ratings).toFixed(2)
+    let newRating: number;
+    if (isExistArtist.rating === null || isExistArtist.rating === 0) {
+        newRating = rating;
+    } else {
+        newRating = ((isExistArtist.rating * isExistArtist.totalRating) + rating) / totalRating;
     }
 
+    const updatedData = {
+        totalRating: totalRating,
+        rating: Number(newRating).toFixed(2) // Round to 2 decimal places
+    };
+
+
     const result:any = await Lesson.findOneAndUpdate({user: payload.artist}, updatedData, {new: true});
+    if(!result){
+        console.log("error")
+    }
     return result;
 }
 

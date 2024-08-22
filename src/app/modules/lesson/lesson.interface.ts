@@ -5,10 +5,11 @@ export type ILesson = {
   title: string;
   genre: string;
   bio: string;
-  lesson: string;
+  lessonTitle: string;
+  lessonDescription: string;
   duration: string;
-  lessonOnline: string;
-  price: string;
+  lessonOutline: string;
+  price: number;
   notes: string;
   rating?: number;
   instrument: string;
