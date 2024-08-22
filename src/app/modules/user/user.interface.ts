@@ -10,6 +10,7 @@ export type IUser = {
   about: string;
   location: string;
   profile?: string;
+  gender?: string;
   status: 'active' | 'delete';
   verified: boolean;
   lesson?: Schema.Types.ObjectId;

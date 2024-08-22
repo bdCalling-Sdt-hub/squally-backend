@@ -10,7 +10,8 @@ export type ILesson = {
   lessonOnline: string;
   price: string;
   notes: string;
-  rating?: string;
+  rating?: number;
+  instrument: string;
   totalRating?: Number;
   gallery: [
     {

@@ -16,6 +16,10 @@ const lessonSchema = new Schema<ILesson, LessonModal>(
       type: String,
       required: true
     },
+    instrument: {
+      type: String,
+      required: true
+    },
     bio: {
       type: String,
       required: true
@@ -41,8 +45,8 @@ const lessonSchema = new Schema<ILesson, LessonModal>(
       required: true
     },
     rating: {
-      type: String,
-      required: false
+      type: Number,
+      default: 0
     },
     totalRating: {
       type: Number,

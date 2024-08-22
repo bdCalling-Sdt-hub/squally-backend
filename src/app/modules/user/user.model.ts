@@ -37,6 +37,10 @@ const userSchema = new Schema<IUser, UserModal>(
       type: String,
       default: ""
     },
+    gender: {
+      type: String,
+      default: ""
+    },
     profile: {
       type: String,
       default: 'https://i.ibb.co/z5YHLV9/profile.png',
