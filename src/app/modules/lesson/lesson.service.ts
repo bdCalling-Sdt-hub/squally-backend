@@ -5,6 +5,14 @@ import { Lesson } from "./lesson.model";
 import { User } from "../user/user.model";
 
 const createLesson = async (payload: ILesson): Promise<ILesson> => {
+
+    const artist = payload.user as unknown as string;
+    // check artist is add all bank info or not
+    const isExistBank = await User.isAccountCreated(artist);
+    /* if(!isExistBank){
+        throw new ApiError(StatusCodes.UNAUTHORIZED, "Please Put all of your bank info then try again");
+    } */
+
     const result:any = Lesson.create(payload);
     if(!result){
         throw new ApiError(StatusCodes.UNAUTHORIZED, "Failed to create Lesson");

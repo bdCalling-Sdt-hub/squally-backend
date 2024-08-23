@@ -7,6 +7,7 @@ import { LessonRoutes } from '../app/modules/lesson/lesson.routes';
 import { ReviewRoutes } from '../app/modules/review/review.routes';
 import { BookmarkRoutes } from '../app/modules/bookmark/bookmark.routes';
 import { ArtistRoutes } from '../app/modules/artist/artist.routes';
+import { BookingRoutes } from '../app/modules/booking/booking.routes';
 const router = express.Router();
 
 const apiRoutes = [
@@ -41,6 +42,10 @@ const apiRoutes = [
   {
     path: '/artist',
     route: ArtistRoutes,
+  },
+  {
+    path: '/booking',
+    route: BookingRoutes
   },
 ];
 

@@ -1,10 +1,10 @@
-import { Model, model, Types } from "mongoose";
+import { Model, Types } from "mongoose";
 
 export type IBooking = {
     user: Types.ObjectId,
     artist: Types.ObjectId,
     price: Number,
-    fine: Number,
+    fine?: Number,
     bookingId:String,
     status:  'Pending' | 'Complete',
     booking_date: String,

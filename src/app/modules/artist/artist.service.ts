@@ -129,9 +129,47 @@ const availableArtistFromDB= async(): Promise<undefined>=>{
     return availableArtist;
 }
 
+// artist
+const artistFromDB= async(): Promise<ILesson[]>=>{
+
+    // Get IDs of artist who have made a booking
+    const bookedArtistIds = await Booking.distinct("artist");
+
+    // Find users who are not in the list of bookedArtistIds
+    const availableArtists:any = await User.find({ _id: { $in: bookedArtistIds }})
+    .populate({
+        path: "lesson",
+        select: "gallery rating totalRating lessonTitle duration"
+    })
+    .select("name profile lesson");
+
+
+    // get all artist id from bookmark;
+    const bookmarkId = await Bookmark.find({}).distinct("artist");
+    const bookmarkIdStrings = bookmarkId.map(id => id.toString());
+
+
+    // Add wish property to each artist if it matches with the bookmark
+    const availableArtist = availableArtists.map((item:any) => {
+        const artist = item.toObject();
+        const {lesson, ...otherData} = artist;
+        const isWish = bookmarkIdStrings.includes(artist?._id.toString());
+
+        const data = {
+            ...otherData,
+            lesson,
+            wish: isWish
+        }
+        return data;
+    });
+
+    return availableArtist;
+}
+
 export const  ArtistService ={
     artistProfileFromDB,
     popularArtistFromDB,
     artistByCategoryFromDB,
-    availableArtistFromDB
+    availableArtistFromDB,
+    artistFromDB
 }

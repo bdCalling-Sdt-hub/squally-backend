@@ -95,7 +95,7 @@ const fileUploadHandler = () => {
     { name: 'image', maxCount: 3 },
     { name: 'media', maxCount: 3 },
     { name: 'gallery', maxCount: 3 },
-    { name: 'doc', maxCount: 3 },
+    { name: 'doc', maxCount: 2 },
   ]);
   return upload;
 };
