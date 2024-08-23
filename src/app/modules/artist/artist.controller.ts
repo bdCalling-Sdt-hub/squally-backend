@@ -46,11 +46,23 @@ const availableArtistFromDB = catchAsync(async(req: Request, res: Response)=>{
         message: "Available Artist Retrieved Successfully",
         data: result
     })
+});
+
+const artistListFromDB = catchAsync(async(req: Request, res: Response)=>{
+    const query = req.query;
+    const result = await ArtistService.artistListFromDB(query);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Artist List Retrieved Successfully",
+        data: result
+    })
 })
 
 export const ArtistController = {
     artistProfileFromDB,
     popularArtistFromDB,
     artistByCategoryFromDB,
-    availableArtistFromDB
+    availableArtistFromDB,
+    artistListFromDB
 };

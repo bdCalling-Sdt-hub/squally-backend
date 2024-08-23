@@ -2,7 +2,6 @@ import { ILesson } from "../lesson/lesson.interface";
 import { Lesson } from "../lesson/lesson.model"
 import { Bookmark } from "../bookmark/bookmark.model";
 import { User } from "../user/user.model";
-import mongoose from "mongoose";
 import { IUser } from "../user/user.interface";
 import { Booking } from "../booking/booking.model";
 
@@ -129,19 +128,52 @@ const availableArtistFromDB= async(): Promise<undefined>=>{
     return availableArtist;
 }
 
-// artist
-const artistFromDB= async(): Promise<ILesson[]>=>{
+// artist list
+const artistListFromDB= async(query:any): Promise<ILesson[]>=>{
 
-    // Get IDs of artist who have made a booking
-    const bookedArtistIds = await Booking.distinct("artist");
+    const {search, rating, ...filerData } = query;
+    const anyConditions = [];
+
+    //artist search here
+    if (search) {
+        anyConditions.push({
+            $or: ["title", "lessonTitle", "genre", "instrument"].map((field) => ({
+                [field]: {
+                    $regex: search,
+                    $options: "i"
+                }
+            }))
+        });
+    }
+
+    // artist filter here
+    if(Object.keys(filerData).length){
+        anyConditions.push({
+            $and: Object.entries(filerData).map(([field, value])=>({
+                [field]: value
+            }))
+        })
+    }
+
+    //artist filter with price range
+    if (rating) {
+        anyConditions.push({
+            rating: {
+                $gte: rating,
+                $lt: rating + 1
+            },
+        });
+    }
+    
+    const whereConditions = anyConditions.length > 0 ? { $and: anyConditions } : {};
 
     // Find users who are not in the list of bookedArtistIds
-    const availableArtists:any = await User.find({ _id: { $in: bookedArtistIds }})
+    const results:any = await Lesson.find(whereConditions)
     .populate({
-        path: "lesson",
-        select: "gallery rating totalRating lessonTitle duration"
+        path: "user",
+        select: "name profile"
     })
-    .select("name profile lesson");
+    .select("rating totalRating gallery lessonTitle");
 
 
     // get all artist id from bookmark;
@@ -150,14 +182,16 @@ const artistFromDB= async(): Promise<ILesson[]>=>{
 
 
     // Add wish property to each artist if it matches with the bookmark
-    const availableArtist = availableArtists.map((item:any) => {
+    const availableArtist = results.map((item:any) => {
         const artist = item.toObject();
-        const {lesson, ...otherData} = artist;
+        const { user, ...otherData} = artist;
         const isWish = bookmarkIdStrings.includes(artist?._id.toString());
 
         const data = {
-            ...otherData,
-            lesson,
+            ...user,
+            lesson:{
+                ...otherData
+            },
             wish: isWish
         }
         return data;
@@ -171,5 +205,5 @@ export const  ArtistService ={
     popularArtistFromDB,
     artistByCategoryFromDB,
     availableArtistFromDB,
-    artistFromDB
+    artistListFromDB
 }

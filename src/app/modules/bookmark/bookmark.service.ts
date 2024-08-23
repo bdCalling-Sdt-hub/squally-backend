@@ -40,7 +40,7 @@ const getBookmark = async (user: JwtPayload): Promise<IBookmark[]>=>{
             populate:{
                 path: 'lesson',
                 model: 'Lesson',
-                select: 'rating totalRating gallery title'
+                select: 'rating totalRating gallery lessonTitle'
             }
         }).select("artist")
     
