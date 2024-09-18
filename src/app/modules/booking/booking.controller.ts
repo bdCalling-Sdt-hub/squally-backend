@@ -11,7 +11,6 @@ const createBooking = catchAsync(async(req: Request, res: Response)=>{
         user: user?.id,
         ...req.body
     }
-
     const result = await BookingService.createBooking(payload)
 
     sendResponse(res, {
@@ -77,13 +76,76 @@ const checkAvailabilityBookingFromDB= catchAsync(async(req: Request, res: Respon
 
 // check booking availability
 const transactionsHistoryFromDB= catchAsync(async(req: Request, res: Response)=>{
-    const id = req.user.id;
-    const result = await BookingService.transactionsHistoryFromDB(id)
+    const user = req.user;
+    const result = await BookingService.transactionsHistoryFromDB(user)
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
         message: "Transactions History retrieved Successfully",
         data: result
+    })
+})
+
+// respond booking
+const respondBookingToDB= catchAsync(async(req: Request, res: Response)=>{
+    const id = req.params.id;
+    const status = req.query.status as unknown as string;
+    const result = await BookingService.respondBookingToDB(id, status)
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: `Artist ${status} the Booking Successfully`,
+        data: result
+    })
+})
+
+// respond booking
+const bookingDetailsFromDB= catchAsync(async(req: Request, res: Response)=>{
+    const id = req.params.id;
+    const result = await BookingService.bookingDetailsFromDB(id)
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: `Booking Details Retrieved`,
+        data: result
+    })
+})
+
+
+// booking summary
+const bookingSummaryFromDB= catchAsync(async(req: Request, res: Response)=>{
+    const id = req.user.id;
+    const result = await BookingService.bookingSummaryFromDB(id)
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: `Booking Summary Retrieved`,
+        data: result
+    })
+})
+
+// lesson booking summary
+const lessonBookingSummary= catchAsync(async(req: Request, res: Response)=>{
+    const id = req.user.id;
+    const {status, date} = req.query;
+    const result = await BookingService.lessonBookingFromDB(id, status as string, date as string)
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: `Lesson Booking Summary Retrieved`,
+        data: result
+    })
+})
+
+// lesson booking summary
+const sendLinkToUser= catchAsync(async(req: Request, res: Response)=>{
+    const id = req.params.id;
+    const bookingLink = req.body.bookingLink;
+    await BookingService.sendLinkToUser(id, bookingLink);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: `Session Link send Successfully`
     })
 })
 
@@ -94,5 +156,10 @@ export const BookingController = {
     completeBookingToDB,
     rescheduleBookingToDB,
     checkAvailabilityBookingFromDB,
-    transactionsHistoryFromDB
+    transactionsHistoryFromDB,
+    respondBookingToDB,
+    bookingDetailsFromDB,
+    bookingSummaryFromDB,
+    lessonBookingSummary,
+    sendLinkToUser
 }

@@ -3,7 +3,6 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { ArtistService } from './artist.service';
-import mongoose from 'mongoose';
 
 const artistProfileFromDB = catchAsync(async(req: Request, res: Response)=>{
     const user = req.params.id;

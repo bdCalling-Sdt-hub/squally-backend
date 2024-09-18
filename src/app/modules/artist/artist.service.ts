@@ -4,28 +4,36 @@ import { Bookmark } from "../bookmark/bookmark.model";
 import { User } from "../user/user.model";
 import { IUser } from "../user/user.interface";
 import { Booking } from "../booking/booking.model";
+import { Review } from "../review/review.model";
 
 
 const artistProfileFromDB= async(payload: string): Promise<ILesson>=>{
     const isExistArtist:any = await User.findById(payload)
     .populate({
         path: "lesson",
-        select: "title genre bio duration price notes rating totalRating gallery lessonTitle lessonDescription lessonOutline"
+        select: "title genre instrument bio duration price notes rating totalRating gallery lessonTitle lessonDescription lessonOutline"
     }).select("name profile");
 
     // get all artist id from bookmark;
     const bookmarkId = await Bookmark.find({artist: payload}).distinct("artist");
 
+    const reviews = await Review.find({artist: payload})
+    .populate({
+        path: "user", 
+        select: "name profile"
+    }).select("user text rating")
+
     // Convert ObjectId to strings if necessary
-    const bookmarkIdStrings = bookmarkId.map(id => id.toString());
+    const bookmarkIdStrings = bookmarkId?.map(id => id?.toString());
 
 
     // now checking bookmark includes the artist; 
-    const isWish = bookmarkIdStrings.includes(isExistArtist._id.toString());
+    const isWish = bookmarkIdStrings?.includes(isExistArtist?._id.toString());
 
     const result = {
-        ...isExistArtist.toObject(),
-        bookmark: isWish
+        ...isExistArtist?.toObject(),
+        bookmark: isWish,
+        reviews: reviews || []
     }
 
     return result;
@@ -49,7 +57,7 @@ const popularArtistFromDB= async(): Promise<IUser[]>=>{
         const {user, ...otherArtist} = artist;
         const isWish = bookmarkIdStrings.includes(artist?.user?._id.toString());
 
-        const data = {
+        const data:any = {
             ...user,
             lesson: {
                 ...otherArtist
@@ -67,24 +75,19 @@ const artistByCategoryFromDB= async(category: string): Promise<ILesson[]>=>{
     .populate({
         path: "user",
         select: "name profile"
-    }).select("gallery lessonTitle user rating totalRating").sort({rating: -1})
+    }).select("gallery title user rating totalRating").sort({rating: -1})
 
-    // get all artist id from bookmark;
-    const bookmarkId = await Bookmark.find({}).distinct("artist");
-    const bookmarkIdStrings = bookmarkId.map(id => id.toString());
 
     // Add wish property to each artist if it matches with the bookmark
     const popularArtist = artists.map((item:any) => {
         const artist = item.toObject();
         const {user, ...otherArtist} = artist;
-        const isWish = bookmarkIdStrings.includes(artist?.user?._id.toString());
 
         const data = {
             ...user,
             lesson: {
                 ...otherArtist
-            },
-            wish: isWish
+            }
         }
         return data;
     });
@@ -96,9 +99,10 @@ const availableArtistFromDB= async(): Promise<undefined>=>{
 
     // Get IDs of artist who have made a booking
     const bookedArtistIds = await Booking.distinct("artist");
+    console.log(bookedArtistIds)
 
     // Find users who are not in the list of bookedArtistIds
-    const availableArtists:any = await User.find({ _id: { $in: bookedArtistIds }})
+    const availableArtists:any = await User.find({ _id: { $nin: bookedArtistIds }, role: "ARTIST"})
     .populate({
         path: "lesson",
         select: "gallery rating totalRating lessonTitle duration"
@@ -119,7 +123,7 @@ const availableArtistFromDB= async(): Promise<undefined>=>{
 
         const data = {
             ...otherData,
-            lesson,
+            lesson: lesson || {},
             wish: isWish
         }
         return data;
@@ -173,32 +177,26 @@ const artistListFromDB= async(query:any): Promise<ILesson[]>=>{
         path: "user",
         select: "name profile"
     })
-    .select("rating totalRating gallery lessonTitle");
-
-
-    // get all artist id from bookmark;
-    const bookmarkId = await Bookmark.find({}).distinct("artist");
-    const bookmarkIdStrings = bookmarkId.map(id => id.toString());
+    .select("rating totalRating gallery title");
 
 
     // Add wish property to each artist if it matches with the bookmark
     const availableArtist = results.map((item:any) => {
         const artist = item.toObject();
         const { user, ...otherData} = artist;
-        const isWish = bookmarkIdStrings.includes(artist?._id.toString());
 
         const data = {
             ...user,
             lesson:{
                 ...otherData
-            },
-            wish: isWish
+            }
         }
         return data;
     });
 
     return availableArtist;
 }
+
 
 export const  ArtistService ={
     artistProfileFromDB,

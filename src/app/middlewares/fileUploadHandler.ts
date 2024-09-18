@@ -30,7 +30,7 @@ const fileUploadHandler = () => {
         case 'media':
           uploadDir = path.join(baseUploadDir, 'medias');
           break;
-        case 'doc':
+        case 'KYC':
           uploadDir = path.join(baseUploadDir, 'docs');
           break;
         default:
@@ -55,6 +55,7 @@ const fileUploadHandler = () => {
 
   //file filter
   const filterFilter = (req: Request, file: any, cb: FileFilterCallback) => {
+    // console.log("file handler",file)
     if (file.fieldname === 'image') {
       if (
         file.mimetype === 'image/jpeg' ||
@@ -63,28 +64,26 @@ const fileUploadHandler = () => {
       ) {
         cb(null, true);
       } else {
-        throw new ApiError(
-          StatusCodes.BAD_REQUEST,
-          'Only .jpeg, .png, .jpg file supported'
-        );
+        cb(new ApiError(StatusCodes.BAD_REQUEST, 'Only .jpeg, .png, .jpg file supported'))
       }
     } else if (file.fieldname === 'media') {
       if (file.mimetype === 'video/mp4' || file.mimetype === 'audio/mpeg') {
         cb(null, true);
       } else {
-        throw new ApiError(
-          StatusCodes.BAD_REQUEST,
-          'Only .mp4, .mp3, file supported'
-        );
+        cb(new ApiError(StatusCodes.BAD_REQUEST, 'Only .mp4, .mp3, file supported'))
       }
-    } else if (file.fieldname === 'doc') {
-      if (file.mimetype === 'application/pdf') {
+    } else if (file.fieldname === 'KYC') {
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg'
+      ) {
         cb(null, true);
       } else {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'Only pdf supported');
+        cb(new ApiError(StatusCodes.BAD_REQUEST, 'Only .jpeg, .png, .jpg file supported'))
       }
     } else {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'This file is not supported');
+      cb(new ApiError(StatusCodes.BAD_REQUEST, 'This file is not supported'))
     }
   };
 
@@ -94,8 +93,7 @@ const fileUploadHandler = () => {
   }).fields([
     { name: 'image', maxCount: 3 },
     { name: 'media', maxCount: 3 },
-    { name: 'gallery', maxCount: 3 },
-    { name: 'doc', maxCount: 2 },
+    { name: "KYC", maxCount: 2 },
   ]);
   return upload;
 };

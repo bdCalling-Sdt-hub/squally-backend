@@ -17,7 +17,15 @@ const createPaymentIntentToStripe = catchAsync(async(req: Request, res: Response
 });
 
 const createAccountToStripe = catchAsync(async(req: Request, res: Response)=>{
-    const payload = req.body;
+    const user = req.user;
+    const bodyData = JSON.parse(req.body?.data);
+    const files = req?.files?.KYC;
+
+    const payload = {
+        user,
+        bodyData,
+        files
+    }
     const result = await PaymentService.createAccountToStripe(payload);
     sendResponse(res, {
         statusCode: StatusCodes.OK,

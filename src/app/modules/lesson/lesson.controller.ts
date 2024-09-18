@@ -20,6 +20,8 @@ const createLesson = catchAsync(async (req: Request, res: Response) => {
         gallery,
         user
     }
+
+    console.log(payload);
     
     const result = await LessonService.createLesson(payload);
     sendResponse(res, {
@@ -33,7 +35,6 @@ const createLesson = catchAsync(async (req: Request, res: Response) => {
 const updateLesson = catchAsync(async (req: Request, res: Response) => {
     const user = req.user;
     const updateData = req.body;
-    const id = req.params.id;
 
     let gallery = [];
     if (req.files && "image" in req.files && req.files.image.length) {
@@ -46,8 +47,9 @@ const updateLesson = catchAsync(async (req: Request, res: Response) => {
         ...updateData,
         gallery
     }
+    console.log(payload);
 
-    const result = await LessonService.updateLesson(id, payload, user);
+    const result = await LessonService.updateLesson(payload, user);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,

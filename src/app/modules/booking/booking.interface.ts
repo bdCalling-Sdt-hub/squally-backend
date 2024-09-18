@@ -6,7 +6,7 @@ export type IBooking = {
     price: Number,
     fine?: Number,
     bookingId:String,
-    status:  'Pending' | 'Complete',
+    status:  'Pending' | 'Complete' | "Accept" | "Reject" |"Refund",
     booking_date: String,
     transactionId: String,
     booking_time: String

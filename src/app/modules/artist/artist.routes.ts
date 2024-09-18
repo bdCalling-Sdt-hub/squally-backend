@@ -8,7 +8,7 @@ router.get("/popular-musicians", auth(USER_ROLES.USER), ArtistController.popular
 router.get("/available-musicians", auth(USER_ROLES.USER), ArtistController.availableArtistFromDB);
 router.get("/:category", auth(USER_ROLES.USER), ArtistController.artistByCategoryFromDB);
 router.get("/", auth(USER_ROLES.USER), ArtistController.artistListFromDB);
-router.get("/:id", auth(USER_ROLES.USER, USER_ROLES.ARTIST), ArtistController.artistProfileFromDB);
+router.get("/profile/:id", auth(USER_ROLES.USER, USER_ROLES.ARTIST), ArtistController.artistProfileFromDB);
 
 
 export const ArtistRoutes = router;

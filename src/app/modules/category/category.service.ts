@@ -5,8 +5,17 @@ import { Category } from './category.model'
 import unlinkFile from '../../../shared/unlinkFile'
 
 const createCategoryToDB = async (payload: ICategory) => {
+  const {categoryName, image} = payload;
+  const isExistName = await Category.findOne({categoryName: categoryName})
+
+  if(isExistName){
+    unlinkFile(image);
+    throw new ApiError(StatusCodes.NOT_ACCEPTABLE, "This Category Name Already Exist");
+  }
+
   const createCategory = await Category.create(payload)
   if (!createCategory) {
+    unlinkFile(image);
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create category')
   }
 
@@ -22,7 +31,7 @@ const updateCategoryToDB = async (id: string, payload: ICategory) => {
   const isExistCategory = await Category.findById(id);
 
   if(!isExistCategory){
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Category doesn't exist")
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Category doesn't exist");
   }
   
   if (payload.image) {

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Accepted</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .header {
+            text-align: center;
+            background-color: #2461CB;
+            padding: 10px;
+            color: white;
+        }
+        .details {
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #2461CB;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Session Accepted!</h1>
+        </div>
+        <p>Hello <%= userName %>,</p>
+        <p>Great news! The artist <strong><%= artistName %></strong> has accepted your session request. Here are the details:</p>
+        
+        <div class="details">
+            <p><strong>Booking Date:</strong> <%= bookingDate %></p>
+            <p><strong>Booking Time:</strong> <%= bookingTime %></p>
+        </div>
+
+        <p>We look forward to seeing you at the session. If you have any questions, feel free to reply to this email.</p>
+
+        <p>Thanks,<br/>Zinkly</p>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="<%= bookingLink %>" target="_blank" class="button">Join Session</a>
+        </div>
+    </div>
+</body>
+</html>

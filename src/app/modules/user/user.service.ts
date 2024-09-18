@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
 import { JwtPayload } from 'jsonwebtoken';
-import { USER_ROLES } from '../../../enums/user';
 import ApiError from '../../../errors/ApiError';
 import { emailHelper } from '../../../helpers/emailHelper';
 import { emailTemplate } from '../../../shared/emailTemplate';
@@ -8,6 +7,8 @@ import unlinkFile from '../../../shared/unlinkFile';
 import generateOTP from '../../../util/generateOTP';
 import { IUser } from './user.interface';
 import { User } from './user.model';
+import cron from 'node-cron';
+
 
 const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
   
@@ -32,10 +33,19 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
     oneTimeCode: otp,
     expireAt: new Date(Date.now() + 3 * 60000),
   };
-  await User.findOneAndUpdate(
+  const user = await User.findOneAndUpdate(
     { _id: createUser._id },
     { $set: { authentication } }
   );
+
+
+  // Schedule the reminder
+  
+  // cron.schedule("*/5 * * * *", async () => {
+  //   if(!user?.verified){
+  //     await User.findByIdAndDelete(createUser?._id);
+  //   }
+  // })
 
   return createUser;
 };
@@ -56,6 +66,7 @@ const updateProfileToDB = async (
   user: JwtPayload,
   payload: Partial<IUser>
 ): Promise<Partial<IUser | null>> => {
+  
   const { id } = user;
   const isExistUser = await User.isExistUserById(id);
   if (!isExistUser) {

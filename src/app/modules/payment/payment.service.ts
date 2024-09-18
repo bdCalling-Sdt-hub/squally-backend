@@ -4,6 +4,8 @@ import Stripe from "stripe";
 import config from "../../../config";
 import { Booking } from "../booking/booking.model";
 import { User } from "../user/user.model";
+import unlinkFile from "../../../shared/unlinkFile";
+const fs = require("fs");
 
 //create stripe instance
 const stripe = new Stripe(config.stripe_api_secret as string);
@@ -29,7 +31,140 @@ const createPaymentIntentToStripe = async(payload: any) =>{
 
 // create account
 const createAccountToStripe = async(payload: any)=>{
-    return
+
+    const { user, bodyData, files } = payload;
+
+    try {
+    
+        //user check
+        const isExistUser = await User.isExistUserById(user.id);
+        if (!isExistUser) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, "User does't exist!");
+        }
+    
+        //check already account exist;
+        if (await User.isAccountCreated(user.id)) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, "Your account already exist,Please skip this");
+        }
+
+        if (!files || files?.length < 2) {
+            files?.forEach((element:any) => {
+                const removeFileFromUploads = `/docs/${element.filename}`;
+                unlinkFile(removeFileFromUploads);
+            });
+            throw new ApiError(StatusCodes.BAD_REQUEST, "Two kyc files are required!");
+        }
+  
+    
+        const { dateOfBirth, phoneNumber, address, bank_info, business_profile } = bodyData;
+        const dob = new Date(dateOfBirth);
+    
+        if (!dateOfBirth && !phoneNumber && !address && !bank_info && !business_profile) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Please provide the required information: date of birth, phone number, address, bank information, and business profile.");
+        }
+
+  
+        //process of kyc
+        const frontFilePart = await stripe.files.create({
+            purpose: "identity_document",
+            file: {
+                data: fs.readFileSync(files[0].path),
+                name: files[0].filename,
+                type: files[0].mimetype,
+            }
+        });
+    
+        const backFilePart = await stripe.files.create({
+            purpose: "identity_document",
+            file: {
+                data: fs.readFileSync(files[0].path),
+                name: files[0].filename,
+                type: files[0].mimetype,
+            }
+        });
+    
+        //create token
+        const token:any = await stripe.tokens.create({
+            account: {
+                individual: {
+                dob: {
+                    day: dob.getDate(),
+                    month: dob.getMonth() + 1,
+                    year: dob.getFullYear(),
+                },
+                first_name: isExistUser?.name?.split(" ")[0],
+                last_name: isExistUser?.name?.split(" ")[1] || "dummy Last Name",
+                email: isExistUser?.email,
+                phone: phoneNumber,
+                address: {
+                    city: address.city,
+                    country: address.country,
+                    line1: address.line1,
+                    postal_code: address.postal_code,
+                },
+                verification: {
+                    document: {
+                        front: frontFilePart.id,
+                        back: backFilePart.id,
+                    },
+                },
+                },
+                business_type: "individual",
+                tos_shown_and_accepted: true,
+            }
+        });
+  
+        //account created
+        const account:any = await stripe.accounts.create({
+            type: "custom",
+            account_token: token.id,
+            capabilities: {
+                card_payments: { requested: true },
+                transfers: { requested: true },
+            },
+            business_profile: {
+                mcc: "5970",
+                name: business_profile.business_name || isExistUser.firstName,
+                url: business_profile.website || "www.example.com",
+            },
+            external_account: {
+                object: "bank_account",
+                account_holder_name: bank_info.account_holder_name,
+                account_holder_type: bank_info.account_holder_type,
+                account_number: bank_info.account_number,
+                country: "US",
+                currency: "usd",
+                routing_number: bank_info.routing_number
+            }
+        });
+  
+        //save to the DB
+        if (account.id && account.external_accounts?.data?.length) {
+            isExistUser.accountInformation.stripeAccountId = account.id;
+            isExistUser.accountInformation.externalAccountId = account.external_accounts?.data[0].id;
+            isExistUser.accountInformation.status = true;
+            isExistUser.bank_account = bank_info.account_number;
+            await isExistUser.save();
+        }
+  
+        // Create account link for onboarding
+        const accountLink = await stripe.accountLinks.create({
+            account: account.id,
+            refresh_url: "https://example.com/reauth",
+            return_url: "https://example.com/return",
+            type: "account_onboarding",
+            collect: "eventually_due",
+        });
+
+        return accountLink;
+
+    } catch (error:any) {
+        files?.forEach((element:any) => {
+            const removeFileFromUploads = `/docs/${element.filename}`;
+            unlinkFile(removeFileFromUploads);
+        });
+        throw new ApiError(StatusCodes.BAD_REQUEST, error?.raw?.message);
+    }
 }
 
 // transfer and payout credit

@@ -14,10 +14,9 @@ router.post("/create",
     LessonController.createLesson
 )
 
-router.post("/update/:id", 
+router.patch("/update-lesson", 
     auth(USER_ROLES.ARTIST), 
-    fileUploadHandler(), 
-    validateRequest(LessonValidation.updateLessonZodSchema), 
+    fileUploadHandler(),
     LessonController.updateLesson
 )
 

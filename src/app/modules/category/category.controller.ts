@@ -16,8 +16,6 @@ const createCategory = catchAsync(async (req: Request, res: Response) => {
     image,
   };
 
-  console.log("console data", data)
-
   const result = await CategoryService.createCategoryToDB(data)
 
   sendResponse(res, {

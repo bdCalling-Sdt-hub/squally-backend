@@ -56,7 +56,14 @@ const loginUserFromDB = async (payload: ILoginData) => {
     config.jwt.jwt_expire_in as string
   );
 
-  return { createToken };
+  //Create refresh token
+  const refreshToken = jwtHelper.createToken(
+    { id: isExistUser._id, role: isExistUser.role, email: isExistUser.email },
+    config.jwt.refresh_secret as Secret,
+    config.jwt.refresh_expires_in as string,
+  );
+
+  return { token: createToken, role: isExistUser?.role, refreshToken  };
 };
 
 //forget password
