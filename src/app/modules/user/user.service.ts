@@ -20,7 +20,7 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
 
   //send email
   const otp = generateOTP();
-  const values = {
+  const values:any = {
     name: createUser.name,
     otp: otp,
     email: createUser.email!,
@@ -40,12 +40,11 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
 
 
   // Schedule the reminder
-  
-  // cron.schedule("*/5 * * * *", async () => {
-  //   if(!user?.verified){
-  //     await User.findByIdAndDelete(createUser?._id);
-  //   }
-  // })
+  cron.schedule("*/5 * * * *", async () => {
+    if(!user?.verified){
+      await User.findByIdAndDelete(createUser?._id);
+    }
+  })
 
   return createUser;
 };

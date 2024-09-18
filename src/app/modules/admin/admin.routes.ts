@@ -7,11 +7,14 @@ import { AdminValidation } from "./admin.validation";
 const router = express.Router();
 
 router.post("/create-super-admin", validateRequest(AdminValidation.createAdminZodSchema), AdminController.createSuperAdmin);
+router.post("/create-admin", auth(USER_ROLES.SUPER_ADMIN), validateRequest(AdminValidation.createAdminZodSchema), AdminController.createAdmin);
 router.get("/users", auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN), AdminController.userList);
 router.get("/artists", auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN), AdminController.artistList);
 router.get("/transactions", auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN), AdminController.transactionList);
 router.get("/booking-summary", auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN), AdminController.bookingSummary);
 router.get("/earning-statistic", auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN), AdminController.earningStatistic);
 router.get("/user-statistic", auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN), AdminController.userStatistic);
+router.get("/get-admin", auth(USER_ROLES.SUPER_ADMIN), AdminController.getAdmin);
+router.delete("/:id", auth(USER_ROLES.SUPER_ADMIN), AdminController.deleteAdmin);
 
 export const AdminRoutes = router;
