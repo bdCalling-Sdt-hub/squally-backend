@@ -8,10 +8,26 @@ import generateOTP from '../../../util/generateOTP';
 import { IUser } from './user.interface';
 import { User } from './user.model';
 import cron from 'node-cron';
+ 
 
+
+// Separate cron job logic to delete unverified users
+const deleteUnverifiedUsers = async () => {
+  const now = new Date();
+  const unverifiedUsers = await User.find({
+    'authentication.expireAt': { $lt: now },
+    verified: false,
+  });
+
+  for (const user of unverifiedUsers) {
+    await User.findByIdAndDelete(user._id);
+  }
+};
+
+// Schedule cron job (do this once during server startup)
+cron.schedule("*/5 * * * *", deleteUnverifiedUsers);
 
 const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
-  
   
   const createUser = await User.create(payload);
   if (!createUser) {
@@ -33,18 +49,11 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
     oneTimeCode: otp,
     expireAt: new Date(Date.now() + 3 * 60000),
   };
-  const user = await User.findOneAndUpdate(
+
+  await User.findOneAndUpdate(
     { _id: createUser._id },
     { $set: { authentication } }
   );
-
-
-  // Schedule the reminder
-  cron.schedule("*/5 * * * *", async () => {
-    if(!user?.verified){
-      await User.findByIdAndDelete(createUser?._id);
-    }
-  })
 
   return createUser;
 };
@@ -53,7 +62,7 @@ const getUserProfileFromDB = async (
   user: JwtPayload
 ): Promise<Partial<IUser>> => {
   const { id } = user;
-  const isExistUser = await User.findById(id).select("name profile contact role location email");
+  const isExistUser = await User.findById(id).select("name profile contact accountInformation  role location email");
   if (!isExistUser) {
     throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
   }

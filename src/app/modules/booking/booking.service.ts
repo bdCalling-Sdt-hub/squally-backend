@@ -8,11 +8,10 @@ import { JwtPayload } from "jsonwebtoken";
 import cron from 'node-cron';
 import { Notification } from "../notification/notification.model";
 import mongoose from "mongoose";
-import { USER_ROLES } from "../../../enums/user";
 import { emailHelper } from "../../../helpers/emailHelper";
 import Stripe from "stripe";
 import config from "../../../config";
-
+import { sendNotifications } from "../../../helpers/notificationsHelper";
 
 //create stripe instance
 const stripe = new Stripe(config.stripe_api_secret as string);
@@ -34,32 +33,48 @@ const createBooking= async(payload: IBooking): Promise<IBooking>=>{
         bookingId: await generateBookingId()
     }
 
-    const booking = await Booking.create(createOrder);
+    const booking:any = await Booking.create(createOrder);
     if(!booking){
         throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to Booked A Booking")
     }
 
-    /* const bookingTime = new Date(payload?.booking_time as string);
+    // this notifications for artist
+    const data = {
+        sender: payload.user,
+        receiver: payload.artist,
+        text: `Booking on your lesson`,
+    };
+    await sendNotifications(data)
+
+
+
+    /* const bookingTime = new Date(payload.booking_time as string);
+    console.log(bookingTime, payload.booking_time)
     const reminderTime = new Date(bookingTime.getTime() - 2 * 60 * 60 * 1000);
+
+    // Check if reminderTime is valid
+    if (isNaN(reminderTime.getTime())) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid reminder time calculated");
+    }
 
     // Convert reminder time to cron format
     const cronTime = `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${reminderTime.getMonth() + 1} *`;
 
+    // Log or validate cronTime before scheduling
+    console.log("Scheduling reminder with cron time:", cronTime);
+
     // Schedule the reminder
     cron.schedule(cronTime, async () => {
-        const data ={
-            user: payload?.artist,
-            text: `Your appointment with in 2 hours. Don't forget!`,
-        }
-
-        const result =  await Notification.create(data)
-        //@ts-ignore
-        const socketIo = global.io;
-
-        if(socketIo){
-            socketIo.emit(`get-notification::${payload.artist}`, result);
-        }
+        // Notification for the user
+        const data = {
+            sender: payload.artist,
+            receiver: payload.user,
+            text: `Your appointment is in 2 hours. Don't forget!`,
+        };
+        await sendNotifications(data);
     }); */
+
+    
 
     return booking;
 }
@@ -85,14 +100,21 @@ const myBookingFromDB = async(payload: JwtPayload, queries: string): Promise<IBo
 
 // booking marked as complete
 const completeBookingToDB = async(id:string): Promise<IBooking| null>=>{
-    const isExistBooking = await Booking.findById(id);
+    const isExistBooking = await Booking.findByIdAndUpdate({_id: id}, {status: "Complete"}, {new : true})
+
     if(!isExistBooking){
         throw new ApiError(StatusCodes.NOT_FOUND, "There is No Booking Found");
     }
 
-    const result = await Booking.findByIdAndUpdate({_id: id}, {status: "Complete"}, {new : true})
+    // this notifications for artist
+    const data = {
+        sender: isExistBooking.user,
+        receiver: isExistBooking.artist,
+        text: `Someone booking on your lesson`,
+    };
+    await sendNotifications(data)
 
-    return result;
+    return isExistBooking;
 }
 
 // reschedule booking
@@ -107,6 +129,14 @@ const rescheduleBookingToDB = async(id:string, payload:any): Promise<IBooking| n
         price: parseInt(isExistBooking.price) + 5,
         fine: 5
     }
+
+    // this notifications for artist
+    const data = {
+        sender: isExistBooking.user,
+        receiver: isExistBooking.artist,
+        text: `Reschedule on your lesson`,
+    };
+    await sendNotifications(data)
 
     const result = await Booking.findByIdAndUpdate({_id: id}, updatedData, {new : true})
     return result;
@@ -175,12 +205,16 @@ const transactionsHistoryFromDB = async (user: JwtPayload): Promise<IBooking[] |
 // respond for booking status 
 const respondBookingToDB = async (id: string, status: string): Promise<IBooking | null> => {
 
-        // Update the booking status
-        const result:any = await Booking.findByIdAndUpdate(
-            { _id: id },
-            { status: status },
-            { new: true }
-        );
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid ID");
+    }    
+
+    // Update the booking status
+    const result:any = await Booking.findByIdAndUpdate(
+        { _id: id },
+        { status: status },
+        { new: true }
+    );
 
         // Check if the booking was found and updated
         if (!result) {
@@ -208,19 +242,15 @@ const respondBookingToDB = async (id: string, status: string): Promise<IBooking 
             }
         }
 
-        // Create a notification for the user
-        const notificationData = {
-            user: result.user,
+        
+
+        // this notifications for artist
+        const data = {
+            receiver: result.artist,
+            sender: result.user,
             text: `Your session is ${status}`,
         };
-        
-        const notification = await Notification.create(notificationData);
-
-        // Emit the notification to the user via Socket.IO
-        const socketIo = (global as any).io;
-        if (socketIo) {
-            socketIo.emit(`get-notification::${result.user}`, notification);
-        }
+        await sendNotifications(data);
 
         return result;
 };
@@ -364,10 +394,10 @@ const lessonBookingFromDB = async(id: JwtPayload, status:string, date: string): 
     }
 
     if (status) {
-        if (status === "Accepted") {
-            query.status = "Accepted";
-        } else if (status === "Rejected") {
-            query.status = "Rejected";
+        if (status === "Accept") {
+            query.status = "Accept";
+        } else if (status === "Reject") {
+            query.status = "Reject";
         }
     }
 
@@ -396,6 +426,14 @@ const sendLinkToUser = async(id: string, bookingLink:string): Promise<undefined>
         bookingLink: bookingLink
 
     }
+
+    // this notifications for artist
+    const data = {
+        sender: booking.user,
+        receiver: booking.artist,
+        text: `Send Lesson session link with details`,
+    };
+    await sendNotifications(data)
     
     await emailHelper.sendLink(emailData)
     

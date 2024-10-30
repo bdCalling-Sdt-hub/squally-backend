@@ -14,9 +14,10 @@ const stripe = new Stripe(config.stripe_api_secret as string);
 const createPaymentIntentToStripe = async(payload: any) =>{
     
     const { price } = payload;
+    
     if (typeof price !== "number" || price <= 0) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid price amount");
-      }
+    }
 
     const amount = Math.trunc(price * 100);
     const paymentIntent = await stripe.paymentIntents.create({
@@ -33,13 +34,11 @@ const createPaymentIntentToStripe = async(payload: any) =>{
 const createAccountToStripe = async(payload: any)=>{
 
     const { user, bodyData, files } = payload;
-
-    try {
     
         //user check
-        const isExistUser = await User.isExistUserById(user.id);
+        const isExistUser:any = await User.findById(user.id);
         if (!isExistUser) {
-            throw new ApiError(StatusCodes.BAD_REQUEST, "User does't exist!");
+            throw new ApiError(StatusCodes.BAD_REQUEST, "Artist does't exist!");
         }
     
         //check already account exist;
@@ -124,7 +123,7 @@ const createAccountToStripe = async(payload: any)=>{
             },
             business_profile: {
                 mcc: "5970",
-                name: business_profile.business_name || isExistUser.firstName,
+                name: business_profile.business_name || isExistUser?.firstName,
                 url: business_profile.website || "www.example.com",
             },
             external_account: {
@@ -140,11 +139,19 @@ const createAccountToStripe = async(payload: any)=>{
   
         //save to the DB
         if (account.id && account.external_accounts?.data?.length) {
-            isExistUser.accountInformation.stripeAccountId = account.id;
-            isExistUser.accountInformation.externalAccountId = account.external_accounts?.data[0].id;
-            isExistUser.accountInformation.status = true;
-            isExistUser.bank_account = bank_info.account_number;
-            await isExistUser.save();
+            
+            await User.findByIdAndUpdate(
+                isExistUser._id,
+                {
+                    $set: {
+                        "accountInformation.stripeAccountId": account.id,
+                        "accountInformation.externalAccountId": account.external_accounts?.data[0].id,
+                        "accountInformation.status": true,
+                        "bank_account": bank_info.account_number
+                    }
+                },
+                { new: true }
+            );
         }
   
         // Create account link for onboarding
@@ -158,13 +165,13 @@ const createAccountToStripe = async(payload: any)=>{
 
         return accountLink;
 
-    } catch (error:any) {
-        files?.forEach((element:any) => {
+    
+
+        /* files?.forEach((element:any) => {
             const removeFileFromUploads = `/docs/${element.filename}`;
             unlinkFile(removeFileFromUploads);
-        });
-        throw new ApiError(StatusCodes.BAD_REQUEST, error?.raw?.message);
-    }
+        }); */
+        
 }
 
 // transfer and payout credit

@@ -8,6 +8,8 @@ const userList = catchAsync(async(req: Request, res: Response)=>{
     const {page, limit, search} = req.query;
     const payload = {page, limit, search};
 
+    console.log(search)
+
     const result = await AdminService.usersFromDB(payload)
 
     sendResponse(res, {

@@ -254,10 +254,49 @@ const changePasswordToDB = async (
   await User.findOneAndUpdate({ _id: user.id }, updateData, { new: true });
 };
 
+const issueNewAccessToken = async (token: string) => {
+
+  
+
+  // Check if the token is provided
+  if (!token) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Token is required!');
+  }
+
+  //verify token
+  const verifyUser = jwtHelper.verifyToken(
+    token,
+    config.jwt.refresh_secret as Secret
+  );
+
+  // Check if a user with the provided email exists in the database
+  const existingUser:any = await User.findById(verifyUser?.id);
+
+  // Handle case where no User is found
+  if (!existingUser) {
+    throw new ApiError(StatusCodes.NOT_FOUND, `User Not found`,);
+  }
+
+  // If the user is blocked, throw a FORBIDDEN error.
+  if (!existingUser?.verified) {
+    throw new ApiError(StatusCodes.FORBIDDEN, 'User account is Not Verified!');
+  }
+
+  //create token
+  const accessToken = jwtHelper.createToken(
+    { id: existingUser._id, role: existingUser.role, email: existingUser.email },
+    config.jwt.jwt_secret as Secret,
+    config.jwt.jwt_expire_in as string
+  );
+
+  return accessToken;
+};
+
 export const AuthService = {
   verifyEmailToDB,
   loginUserFromDB,
   forgetPasswordToDB,
   resetPasswordToDB,
   changePasswordToDB,
+  issueNewAccessToken
 };

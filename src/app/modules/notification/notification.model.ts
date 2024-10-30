@@ -7,7 +7,12 @@ const notificationSchema = new Schema<INotification, NotificationModel>(
             type: String,
             required: true
         },
-        user: {
+        sender: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
+        receiver: {
             type: Schema.Types.ObjectId,
             ref: "User",
             required: true

@@ -2,7 +2,8 @@ import { Model, Types } from "mongoose";
 
 export type INotification = {
     text: string;
-    user: Types.ObjectId,
+    receiver: Types.ObjectId,
+    sender?: Types.ObjectId,
     read: boolean;
     type?: string;
     adminRead?: boolean;

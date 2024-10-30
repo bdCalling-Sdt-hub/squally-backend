@@ -5,8 +5,8 @@ import { StatusCodes } from "http-status-codes";
 import { NotificationService } from "./notification.service";
 
 const getNotificationFromDB= catchAsync(async(req: Request, res: Response)=>{
-    const id = req.params.id;
-    const result = await NotificationService.getNotificationFromDB(id);
+    const user = req.user;
+    const result = await NotificationService.getNotificationFromDB(user);
 
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -28,7 +28,19 @@ const adminNotificationFromDB= catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
+const readNotification= catchAsync(async(req: Request, res: Response)=>{
+    const result = await NotificationService.readNotificationToDB();
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Notification Read Successfully",
+        data: result
+    })
+})
+
 export const NotificationController = {
     adminNotificationFromDB,
-    getNotificationFromDB
+    getNotificationFromDB,
+    readNotification
 }
