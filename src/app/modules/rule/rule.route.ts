@@ -16,7 +16,7 @@ router
     RuleController.updateTermsAndCondition,
   )
   .get(
-    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.USER,  USER_ROLES.ARTIST),
+    // auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.USER,  USER_ROLES.ARTIST),
     RuleController.getTermsAndCondition,
   )
 
@@ -32,7 +32,7 @@ router
     RuleController.updateDisclaimer,
   )
   .get(
-    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.USER,  USER_ROLES.ARTIST),
+    // auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.USER,  USER_ROLES.ARTIST),
     RuleController.getDisclaimer,
   )
 
