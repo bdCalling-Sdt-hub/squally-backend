@@ -11,24 +11,39 @@ const fs = require("fs");
 const stripe = new Stripe(config.stripe_api_secret as string);
 
 // create payment intent;
-const createPaymentIntentToStripe = async(payload: any) =>{
-    
-    const { price } = payload;
-    
+const createPaymentIntentToStripe = async (payload: any) => {
+    const { price, successUrl, cancelUrl } = payload;
+
     if (typeof price !== "number" || price <= 0) {
         throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid price amount");
     }
 
+    // Stripe expects amounts in cents
     const amount = Math.trunc(price * 100);
-    const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount,
-        currency: "usd",
+
+    // Create a checkout session
+    const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
-        metadata: { integration_check: 'accept_a_payment' }
+        mode: "payment", // Use "subscription" if you're setting up recurring payments
+        line_items: [
+            {
+                price_data: {
+                    currency: "usd",
+                    product_data: {
+                        name: "E-learning Subscription", // Replace with your product/service name
+                    },
+                    unit_amount: amount,
+                },
+                quantity: 1,
+            },
+        ],
+        success_url: successUrl, // URL to redirect upon successful payment
+        cancel_url: cancelUrl, // URL to redirect upon cancellation
     });
 
-    return paymentIntent;
-}
+    return session;
+};
+
 
 // create account
 const createAccountToStripe = async(payload: any)=>{
