@@ -7,7 +7,7 @@ import { StatusCodes } from "http-status-codes";
 
 const createPaymentIntentToStripe = catchAsync(async(req: Request, res: Response)=>{
     const payload = req.body;
-    const result = await PaymentService.createPaymentIntentToStripe(payload);
+    const result = await PaymentService.createPaymentIntentToStripe(req.user, payload);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
@@ -19,7 +19,7 @@ const createPaymentIntentToStripe = catchAsync(async(req: Request, res: Response
 const createAccountToStripe = catchAsync(async(req: Request, res: Response)=>{
     const user = req.user;
     const bodyData = JSON.parse(req.body?.data);
-    const files = req?.files?.KYC;
+    const files = (req?.files as any)?.KYC;
 
     const payload = {
         user,

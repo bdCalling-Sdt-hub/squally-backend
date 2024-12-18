@@ -38,6 +38,18 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
           },
         ]
       : []
+  }else if (error.name === 'StripeInvalidRequestError') {
+    statusCode = StatusCodes.BAD_REQUEST;
+    message = 'Session Expired';
+    errorMessages = error?.message
+      ? [
+          {
+            path: '',
+            message:
+              'Fail to set up Stripe ',
+          },
+        ]
+      : []
   }  else if (error instanceof ApiError) {
     statusCode = error.statusCode;
     message = error.message;

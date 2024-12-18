@@ -24,6 +24,7 @@ export type IUser = {
     stripeAccountId: string;
     externalAccountId: string;
     currency: string;
+    accountUrl: string;
   };
 };
 

@@ -87,6 +87,9 @@ const userSchema = new Schema<IUser, UserModal>(
       externalAccountId: {
         type: String,
       },
+      accountUrl: {
+        type: String,
+      },
       currency: {
         type: String,
       }
