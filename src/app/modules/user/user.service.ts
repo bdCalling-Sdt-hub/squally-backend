@@ -102,14 +102,12 @@ const deleteUserFromDB = async (user: JwtPayload, password: string) => {
   }
 
   //check match password
-  if (
-    password &&
-    !(await User.isMatchPassword(password, isExistUser.password))
-  ) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
+  if (password && !(await User.isMatchPassword(password, isExistUser.password))) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect');
   }
 
   await User.findByIdAndDelete(user.id);
+  return;
 };
 
 export const UserService = {
