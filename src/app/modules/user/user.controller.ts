@@ -40,8 +40,6 @@ const updateProfile = catchAsync(
       profile = `/images/${req.files.image[0].filename}`;
     }
 
-    console.log(req.files)
-
     const data = {
       profile: profile,
       ...req.body,
@@ -59,4 +57,16 @@ const updateProfile = catchAsync(
   }
 );
 
-export const UserController = { createUser, getUserProfile, updateProfile };
+// delete user
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.deleteUserFromDB(req.user);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Account Deleted successfully',
+    data: result
+  });
+});
+
+export const UserController = { createUser, getUserProfile, updateProfile, deleteUser };

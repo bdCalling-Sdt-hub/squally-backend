@@ -19,6 +19,10 @@ router
     validateRequest(UserValidation.createUserZodSchema),
     UserController.createUser
   )
+  .delete(
+    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.USER, USER_ROLES.ARTIST),
+    UserController.deleteUser
+  )
   .patch(
     auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN, USER_ROLES.USER, USER_ROLES.ARTIST),
     fileUploadHandler(),

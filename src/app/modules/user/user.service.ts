@@ -8,7 +8,7 @@ import generateOTP from '../../../util/generateOTP';
 import { IUser } from './user.interface';
 import { User } from './user.model';
 import cron from 'node-cron';
- 
+
 
 
 // Separate cron job logic to delete unverified users
@@ -28,7 +28,7 @@ const deleteUnverifiedUsers = async () => {
 cron.schedule("*/5 * * * *", deleteUnverifiedUsers);
 
 const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
-  
+
   const createUser = await User.create(payload);
   if (!createUser) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create user');
@@ -36,7 +36,7 @@ const createUserToDB = async (payload: Partial<IUser>): Promise<IUser> => {
 
   //send email
   const otp = generateOTP();
-  const values:any = {
+  const values: any = {
     name: createUser.name,
     otp: otp,
     email: createUser.email!,
@@ -74,7 +74,7 @@ const updateProfileToDB = async (
   user: JwtPayload,
   payload: Partial<IUser>
 ): Promise<Partial<IUser | null>> => {
-  
+
   const { id } = user;
   const isExistUser = await User.isExistUserById(id);
   if (!isExistUser) {
@@ -93,8 +93,18 @@ const updateProfileToDB = async (
   return updateDoc;
 };
 
+// delete user
+const deleteUserFromDB = async (user: JwtPayload) => {
+
+  const isExistUser = await User.findByIdAndDelete(user.id);
+  if (!isExistUser) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+  }
+};
+
 export const UserService = {
   createUserToDB,
   getUserProfileFromDB,
   updateProfileToDB,
+  deleteUserFromDB
 };
