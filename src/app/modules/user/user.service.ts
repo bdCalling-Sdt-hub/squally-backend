@@ -64,7 +64,7 @@ const getUserProfileFromDB = async (
   const { id } = user;
   const isExistUser = await User.findById(id).select("name profile contact accountInformation  role location email");
   if (!isExistUser) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "User doesn't exist!");
   }
 
   return isExistUser;
@@ -98,7 +98,7 @@ const deleteUserFromDB = async (user: JwtPayload) => {
 
   const isExistUser = await User.findByIdAndDelete(user.id);
   if (!isExistUser) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "User doesn't exist!");
   }
 };
 
