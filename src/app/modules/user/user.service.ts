@@ -94,12 +94,22 @@ const updateProfileToDB = async (
 };
 
 // delete user
-const deleteUserFromDB = async (user: JwtPayload) => {
+const deleteUserFromDB = async (user: JwtPayload, password: string) => {
 
-  const isExistUser = await User.findByIdAndDelete(user.id);
+  const isExistUser = await User.findById(user.id).select('+password');
   if (!isExistUser) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, "User doesn't exist!");
+    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
   }
+
+  //check match password
+  if (
+    password &&
+    !(await User.isMatchPassword(password, isExistUser.password))
+  ) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Password is incorrect!');
+  }
+
+  await User.findByIdAndDelete(user.id);
 };
 
 export const UserService = {

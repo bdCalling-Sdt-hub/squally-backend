@@ -59,7 +59,7 @@ const updateProfile = catchAsync(
 
 // delete user
 const deleteUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserService.deleteUserFromDB(req.user);
+  const result = await UserService.deleteUserFromDB(req.user, req.body.password);
 
   sendResponse(res, {
     success: true,
