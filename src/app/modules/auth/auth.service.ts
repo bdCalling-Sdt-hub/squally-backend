@@ -16,6 +16,7 @@ import cryptoToken from '../../../util/cryptoToken';
 import generateOTP from '../../../util/generateOTP';
 import { ResetToken } from '../resetToken/resetToken.model';
 import { User } from '../user/user.model';
+import { IUser } from '../user/user.interface';
 
 //login
 const loginUserFromDB = async (payload: ILoginData) => {
@@ -64,7 +65,7 @@ const loginUserFromDB = async (payload: ILoginData) => {
     config.jwt.refresh_expires_in as string,
   );
 
-  return { token: createToken, role: isExistUser?.role, refreshToken  };
+  return { token: createToken, role: isExistUser?.role, refreshToken };
 };
 
 //forget password
@@ -257,7 +258,7 @@ const changePasswordToDB = async (
 
 const issueNewAccessToken = async (token: string) => {
 
-  
+
 
   // Check if the token is provided
   if (!token) {
@@ -271,7 +272,7 @@ const issueNewAccessToken = async (token: string) => {
   );
 
   // Check if a user with the provided email exists in the database
-  const existingUser:any = await User.findById(verifyUser?.id);
+  const existingUser: any = await User.findById(verifyUser?.id);
 
   // Handle case where no User is found
   if (!existingUser) {
@@ -293,11 +294,62 @@ const issueNewAccessToken = async (token: string) => {
   return accessToken;
 };
 
+// social authentication
+const socialLoginFromDB = async (payload: any) => {
+
+  const { appId, role } = payload;
+
+  const isExistUser = await User.findOne({ appId });
+
+  if (isExistUser) {
+
+    //create token
+    const accessToken = jwtHelper.createToken(
+      { id: isExistUser._id, role: isExistUser.role },
+      config.jwt.jwt_secret as Secret,
+      config.jwt.jwt_expire_in as string
+    );
+
+    //create token
+    const refreshToken = jwtHelper.createToken(
+      { id: isExistUser._id, role: isExistUser.role },
+      config.jwt.jwt_secret as Secret,
+      config.jwt.jwt_expire_in as string
+    );
+
+    return { token:accessToken, role, refreshToken };
+
+  } else {
+
+    const user = await User.create({ appId, role, verified: true });
+    if (!user) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to created User")
+    }
+
+    //create token
+    const accessToken = jwtHelper.createToken(
+      { id: user._id, role: user.role },
+      config.jwt.jwt_secret as Secret,
+      config.jwt.jwt_expire_in as string
+    );
+
+    //create token
+    const refreshToken = jwtHelper.createToken(
+      { id: user._id, role: user.role },
+      config.jwt.jwt_secret as Secret,
+      config.jwt.jwt_expire_in as string
+    );
+
+    return { token: accessToken, role, refreshToken };
+  }
+}
+
 export const AuthService = {
   verifyEmailToDB,
   loginUserFromDB,
   forgetPasswordToDB,
   resetPasswordToDB,
   changePasswordToDB,
-  issueNewAccessToken
+  issueNewAccessToken,
+  socialLoginFromDB
 };

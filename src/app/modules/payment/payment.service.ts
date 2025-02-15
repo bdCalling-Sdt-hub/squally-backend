@@ -201,13 +201,6 @@ const createAccountToStripe = async (payload: any) => {
 
     return accountLink;
 
-
-
-    /* files?.forEach((element:any) => {
-        const removeFileFromUploads = `/docs/${element.filename}`;
-        unlinkFile(removeFileFromUploads);
-    }); */
-
 }
 
 // transfer and payout credit

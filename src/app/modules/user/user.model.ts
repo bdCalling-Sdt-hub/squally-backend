@@ -8,10 +8,8 @@ import { IUser, UserModal } from './user.interface';
 
 const userSchema = new Schema<IUser, UserModal>(
   {
-    name: {
-      type: String,
-      required: true,
-    },
+    name: {type: String, required: false},
+    appId: {type: String, required: false},
     role: {
       type: String,
       enum: Object.values(USER_ROLES),
@@ -19,7 +17,6 @@ const userSchema = new Schema<IUser, UserModal>(
     },
     email: {
       type: String,
-      required: true,
       unique: true,
       lowercase: true,
     },
@@ -29,7 +26,6 @@ const userSchema = new Schema<IUser, UserModal>(
     },
     password: {
       type: String,
-      required: true,
       select: 0,
       minlength: 8,
     },
@@ -43,7 +39,7 @@ const userSchema = new Schema<IUser, UserModal>(
     },
     profile: {
       type: String,
-      default: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
+      default: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s',
     },
     status: {
       type: String,
@@ -132,10 +128,12 @@ userSchema.pre('save', async function (next) {
   }
 
   //password hash
-  this.password = await bcrypt.hash(
-    this.password,
-    Number(config.bcrypt_salt_rounds)
-  );
+  if(this.password){
+    this.password = await bcrypt.hash(
+      this.password,
+      Number(config.bcrypt_salt_rounds)
+    );
+  }
   next();
 });
 

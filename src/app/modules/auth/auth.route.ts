@@ -37,6 +37,10 @@ router.post(
   AuthController.changePassword
 );
 
+router.post('/social-login',
+  AuthController.socialLogin
+);
+
 router.post('/refresh-token', AuthController.issueNewAccess);
 
 export const AuthRoutes = router;

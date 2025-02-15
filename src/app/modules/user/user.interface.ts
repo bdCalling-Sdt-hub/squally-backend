@@ -3,6 +3,7 @@ import { USER_ROLES } from '../../../enums/user';
 
 export type IUser = {
   name: string;
+  appId: string;
   role: USER_ROLES;
   contact: string;
   email: string;
