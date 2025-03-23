@@ -138,13 +138,12 @@ const artistListFromDB= async(query:any): Promise<ILesson[]>=>{
     const {search, rating, ...filerData } = query;
     const anyConditions = [];
 
-    //artist search here
-    if (search) {
+    // Artist search handling
+    if (search && typeof search === "string" && search.trim().length > 0) {
         anyConditions.push({
             $or: ["title", "lessonTitle", "genre", "instrument"].map((field) => ({
                 [field]: {
-                    $regex: search,
-                    $options: "i"
+                    $regex: new RegExp(search, "i")
                 }
             }))
         });
